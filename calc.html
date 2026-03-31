@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" href="style.css">
     <meta charset="UTF-8">
-    <title>One Tea</title>
+    <title>One Tea - Конструктор чая</title>
     <link rel="icon" href="logo.png" type="image/png">
     <style>
         .menu { position: sticky; top: 0; z-index: 1000; }
@@ -19,7 +19,6 @@
         .limit-info { font-size: 11px; color: #888; display: block; }
         .total-val { color: #73be5c; font-weight: bold; }
         
-        /* Стили для поля названия */
         .tea-name-input {
             background: transparent;
             border: none;
@@ -52,7 +51,9 @@
         <div class="calc-container">
             <h4>Конструктор авторского чая</h4>
             <p>Соберите свой микс (до 100г)</p>
-            <table><tbody id="ingredients-body"></tbody></table>
+            <table>
+                <tbody id="ingredients-body"></tbody>
+            </table>
             <div class="results-panel">
                 <input type="text" id="tea-name" class="tea-name-input" placeholder="Назовите ваш купаж...">
                 <p>Итоговая стоимость: <span id="total-price" class="total-val">0</span> ₽</p>
@@ -67,115 +68,7 @@
         </div>
     </div>
 
-<script>
-    const db = [
-        { name: "Черный чай", pricePer100: 110, color: "#483C32", time: 5, flavors: ["Терпкость", "Солод"], isBase: true },
-        { name: "Зеленый чай", pricePer100: 120, color: "#74823d", time: 3, flavors: ["Свежесть", "Травы"], isBase: true },
-        { name: "Иван чай", pricePer100: 220, color: "#556b2f", time: 7, flavors: ["Мед", "Цветы"], isBase: true },
-        { name: "Мята", pricePer100: 180, color: "#98ff98", time: 5, flavors: ["Прохлада"], isBase: false },
-        { name: "Цедра апельсина", pricePer100: 170, color: "#ffa500", time: 8, flavors: ["Цитрус", "Горчинка"], isBase: false },
-        { name: "Лаванда", pricePer100: 350, color: "#e6e6fa", time: 5, flavors: ["Аромат", "Свежесть"], isBase: false }
-    ];
-
-    const teaAudio = new Audio('pour.mp3');
-    let userEditedName = false;
-
-    function playPourSound() { teaAudio.currentTime = 0; teaAudio.volume = 0.5; teaAudio.play().catch(() => {}); }
-
-    const adj = ["Горный", "Таёжный", "Солнечный", "Утренний", "Магический", "Лесной", "Бархатный", "Изумрудный", "Королевский", "Янтарный", "Золотой", "Дикий", "Тихий", "Бодрящий", "Звездный"];
-    const nouns = ["Сбор", "Секрет", "Шепот", "Купаж", "Рассвет", "Момент", "Вечер", "Заповедник", "Бриз", "Ритуал", "Сказка", "Поток", "Туман", "Остров", "Сад"];
-
-    function getAutoName(selected) {
-        if (selected.length === 0) return "";
-        if (selected.length === 1) return `Чистый ${selected[0].name}`;
-
-        const base = selected.find(i => i.isBase);
-        const hasMint = selected.some(i => i.name === "Мята");
-        const hasLavender = selected.some(i => i.name === "Лаванда");
-        const hasCitrus = selected.some(i => i.name === "Цедра апельсина");
-
-        if (hasMint && hasLavender) {
-            const relaxing = ["Прованский Вечер", "Сон в летнюю ночь", "Лавандовый Бриз", "Горное Спокойствие", "Мятная Дымка"];
-            return relaxing[Math.floor(Math.random() * relaxing.length)];
-        }
-
-        if (hasCitrus) {
-            const citrusNames = ["Цитрусовый Драйв", "Оранжевое Солнце", "Бодрость Цедры", "Яркий Рассвет"];
-            return citrusNames[Math.floor(Math.random() * citrusNames.length)];
-        }
-
-        if (base && Math.random() > 0.4) {
-            const baseThemes = {
-                "Черный чай": ["Крепость Традиций", "Английский Завтрак", "Индийское Лето"],
-                "Зеленый чай": ["Дыхание Востока", "Зеленый Дракон", "Источник Энергии"],
-                "Иван чай": ["Сила Предков", "Медовый Поля", "Русская Душа"]
-            };
-            const themes = baseThemes[base.name];
-            return themes[Math.floor(Math.random() * themes.length)];
-        }
-
-        return adj[Math.floor(Math.random() * adj.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
-    }
-
-    const tbody = document.getElementById('ingredients-body');
-    const jar = document.getElementById('visual-jar');
-    
-    db.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${item.name}<span class="limit-info">${item.isBase?"до 100г":"до 25г"}</span></td><td><input type="number" min="0" max="${item.isBase?100:25}" value="0" data-index="${index}" class="qty-input"></td>`;
-        tbody.appendChild(tr);
-    });
-
-    const nameInput = document.getElementById('tea-name');
-    nameInput.addEventListener('input', () => { userEditedName = true; });
-
-    function calculate(e) {
-        if (e && e.type === 'input' && e.target !== nameInput) playPourSound();
-        const inputs = document.querySelectorAll('.qty-input');
-        let totalGrams = 0, totalPrice = 0, maxTime = 0;
-        let flavors = new Set(), selectedItems = [];
-        jar.innerHTML = '';
-        
-        inputs.forEach(input => {
-            let val = parseFloat(input.value) || 0;
-            const data = db[input.dataset.index];
-            if (!data.isBase && val > 25) { val = 25; input.value = 25; }
-            totalGrams += val;
-            if (totalGrams > 100) { val -= (totalGrams - 100); totalGrams = 100; input.value = Math.max(0, val); }
-            if (val > 0) {
-                totalPrice += (data.pricePer100 / 100) * val;
-                if (data.time > maxTime) maxTime = data.time;
-                data.flavors.forEach(f => flavors.add(f));
-                selectedItems.push(data);
-                const l = document.createElement('div'); 
-                l.className = 'tea-layer';
-                l.style.height = `${val}%`; 
-                l.style.backgroundColor = data.color; 
-                jar.appendChild(l);
-            }
-        });
-
-        document.getElementById('total-price').innerText = Math.ceil(totalPrice);
-        document.getElementById('total-time').innerText = maxTime;
-        document.getElementById('gram-counter').innerText = totalGrams.toFixed(0);
-        
-        if (!userEditedName) {
-            nameInput.value = getAutoName(selectedItems);
-        }
-
-        const fDiv = document.getElementById('flavor-profile');
-        fDiv.innerHTML = flavors.size > 0 ? Array.from(flavors).map(f => `<span class="flavor-tag">${f}</span>`).join('') : "Выберите ингредиенты...";
-    }
-
-    document.querySelectorAll('.qty-input').forEach(i => i.addEventListener('input', calculate));
-
-    function resetCalculator() {
-        document.querySelectorAll('.qty-input').forEach(i => i.value = 0);
-        userEditedName = false;
-        nameInput.value = "";
-        calculate();
-    }
-</script>
-
+    <!-- Подключаем скомпилированный TypeScript -->
+    <script src="dist/main.js"></script>
 </body>
 </html>
