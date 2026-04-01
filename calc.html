@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" href="style.css">
     <meta charset="UTF-8">
-    <title>One Tea - Конструктор чая</title>
+    <title>One Tea</title>
     <link rel="icon" href="logo.png" type="image/png">
     <style>
         .menu { position: sticky; top: 0; z-index: 1000; }
@@ -19,6 +19,7 @@
         .limit-info { font-size: 11px; color: #888; display: block; }
         .total-val { color: #73be5c; font-weight: bold; }
         
+        /* Стили для поля названия */
         .tea-name-input {
             background: transparent;
             border: none;
@@ -33,23 +34,20 @@
         }
         .tea-name-input::placeholder { color: rgba(255, 215, 0, 0.5); }
         
-        /* Стили для таблицы с ингредиентами */
-        table {
+        /* Стили для таблицы - чтобы текст был видимым */
+        .calc-container table {
             width: 100%;
             margin: 20px 0;
             border-collapse: collapse;
         }
-        th, td {
+        .calc-container td {
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #ddd;
             border: 2px solid #829c3d;
+            color: white;
         }
-        th {
-            background-color: #f5f5f5;
-            font-weight: bold;
-        }
-        tr:hover {
+        .calc-container tr:hover {
             background-color: #9af4772d;
         }
     </style>
@@ -71,20 +69,9 @@
         <div class="calc-container">
             <h4>Конструктор авторского чая</h4>
             <p>Соберите свой микс (до 100г)</p>
-            
-            <!-- Таблица с ингредиентами и КНОПКАМИ (полями ввода) -->
             <table>
-                <thead>
-                    <tr>
-                        <th>Ингредиент</th>
-                        <th>Количество (грамм)</th>
-                    </tr>
-                </thead>
-                <tbody id="ingredients-body">
-                    <!-- Сюда TypeScript добавит строки с кнопками-полями ввода -->
-                </tbody>
+                <tbody id="ingredients-body"></tbody>
             </table>
-            
             <div class="results-panel">
                 <input type="text" id="tea-name" class="tea-name-input" placeholder="Назовите ваш купаж...">
                 <p>Итоговая стоимость: <span id="total-price" class="total-val">0</span> ₽</p>
@@ -99,6 +86,7 @@
         </div>
     </div>
 
+    <!-- Подключаем скомпилированный TypeScript -->
     <script src="dist/main.js"></script>
 </body>
 </html>
