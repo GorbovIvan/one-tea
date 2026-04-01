@@ -1,5 +1,4 @@
-// src/main.ts - TypeScript версия вашего оригинального калькулятора
-
+// Типы данных
 interface Ingredient {
     name: string;
     pricePer100: number;
@@ -7,28 +6,95 @@ interface Ingredient {
     time: number;
     flavors: string[];
     isBase: boolean;
+    maxGrams: number;
 }
 
-const db: Ingredient[] = [
-    { name: "Черный чай", pricePer100: 110, color: "#483C32", time: 5, flavors: ["Терпкость", "Солод"], isBase: true },
-    { name: "Зеленый чай", pricePer100: 120, color: "#74823d", time: 3, flavors: ["Свежесть", "Травы"], isBase: true },
-    { name: "Иван чай", pricePer100: 220, color: "#556b2f", time: 7, flavors: ["Мед", "Цветы"], isBase: true },
-    { name: "Мята", pricePer100: 180, color: "#98ff98", time: 5, flavors: ["Прохлада"], isBase: false },
-    { name: "Цедра апельсина", pricePer100: 170, color: "#ffa500", time: 8, flavors: ["Цитрус", "Горчинка"], isBase: false },
-    { name: "Лаванда", pricePer100: 350, color: "#e6e6fa", time: 5, flavors: ["Аромат", "Свежесть"], isBase: false }
-];
+let ingredients: Ingredient[] = [];
+let userEditedName = false;
+let teaAudio: HTMLAudioElement;
 
-const teaAudio = new Audio('pour.mp3');
-let userEditedName: boolean = false;
+// DOM элементы
+const tbody = document.getElementById('ingredients-body');
+const jar = document.getElementById('visual-jar');
+const nameInput = document.getElementById('tea-name') as HTMLInputElement;
+const resetBtn = document.getElementById('reset-btn');
 
-function playPourSound(): void {
-    teaAudio.currentTime = 0;
+// Загрузка данных из JSON
+async function loadData() {
+    try {
+        const response = await fetch('data/ingredients.json');
+        const data = await response.json();
+        ingredients = data.ingredients;
+        renderTable();
+        setupEventListeners();
+        calculate();
+    } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+    }
+}
+
+// Отрисовка таблицы из данных JSON
+function renderTable() {
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    ingredients.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                ${item.name}
+                <span class="limit-info">${item.isBase ? "до 100г" : "до 25г"}</span>
+            </td>
+            <td>
+                <input type="number" 
+                       min="0" 
+                       max="${item.maxGrams}" 
+                       value="0" 
+                       data-index="${index}" 
+                       class="qty-input">
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Настройка обработчиков событий
+function setupEventListeners() {
+    // Звук
+    teaAudio = new Audio('pour.mp3');
     teaAudio.volume = 0.5;
-    teaAudio.play().catch(() => {});
+    
+    // Поля ввода
+    document.querySelectorAll('.qty-input').forEach(input => {
+        input.addEventListener('input', () => {
+            playPourSound();
+            calculate();
+        });
+    });
+    
+    // Поле названия
+    if (nameInput) {
+        nameInput.addEventListener('input', () => {
+            userEditedName = true;
+        });
+    }
+    
+    // Кнопка сброса
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetCalculator);
+    }
 }
 
-const adj: string[] = ["Горный", "Таёжный", "Солнечный", "Утренний", "Магический", "Лесной", "Бархатный", "Изумрудный", "Королевский", "Янтарный", "Золотой", "Дикий", "Тихий", "Бодрящий", "Звездный"];
-const nouns: string[] = ["Сбор", "Секрет", "Шепот", "Купаж", "Рассвет", "Момент", "Вечер", "Заповедник", "Бриз", "Ритуал", "Сказка", "Поток", "Туман", "Остров", "Сад"];
+function playPourSound() {
+    if (teaAudio) {
+        teaAudio.currentTime = 0;
+        teaAudio.play().catch(() => {});
+    }
+}
+
+// Генерация названия
+const adjectives = ["Горный", "Таёжный", "Солнечный", "Утренний", "Магический", "Лесной", "Бархатный", "Изумрудный", "Королевский", "Янтарный", "Золотой", "Дикий", "Тихий", "Бодрящий", "Звездный"];
+const nouns = ["Сбор", "Секрет", "Шепот", "Купаж", "Рассвет", "Момент", "Вечер", "Заповедник", "Бриз", "Ритуал", "Сказка", "Поток", "Туман", "Остров", "Сад"];
 
 function getAutoName(selected: Ingredient[]): string {
     if (selected.length === 0) return "";
@@ -59,32 +125,11 @@ function getAutoName(selected: Ingredient[]): string {
         if (themes) return themes[Math.floor(Math.random() * themes.length)];
     }
 
-    return adj[Math.floor(Math.random() * adj.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
+    return adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
 }
 
-// Создание таблицы
-const tbody = document.getElementById('ingredients-body');
-const jar = document.getElementById('visual-jar');
-const nameInput = document.getElementById('tea-name') as HTMLInputElement;
-
-if (tbody) {
-    db.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        const maxGrams = item.isBase ? 100 : 25;
-        tr.innerHTML = `
-            <td>${item.name}<span class="limit-info">${item.isBase ? "до 100г" : "до 25г"}</span></td>
-            <td><input type="number" min="0" max="${maxGrams}" value="0" data-index="${index}" class="qty-input"></td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
-if (nameInput) {
-    nameInput.addEventListener('input', () => { userEditedName = true; });
-}
-
-function calculate(e?: Event): void {
-    if (e && e.type === 'input' && e.target !== nameInput) playPourSound();
+// Основная функция расчета
+function calculate() {
     const inputs = document.querySelectorAll('.qty-input');
     let totalGrams = 0, totalPrice = 0, maxTime = 0;
     const flavors = new Set<string>();
@@ -93,26 +138,43 @@ function calculate(e?: Event): void {
     if (jar) jar.innerHTML = '';
     
     inputs.forEach(input => {
+        const idx = parseInt((input as HTMLInputElement).dataset.index || '0');
         let val = parseFloat((input as HTMLInputElement).value) || 0;
-        const data = db[parseInt((input as HTMLInputElement).dataset.index || '0')];
-        if (!data.isBase && val > 25) { val = 25; (input as HTMLInputElement).value = '25'; }
+        const ingredient = ingredients[idx];
+        if (!ingredient) return;
+        
+        // Ограничения
+        if (!ingredient.isBase && val > 25) {
+            val = 25;
+            (input as HTMLInputElement).value = '25';
+        }
+        
         totalGrams += val;
-        if (totalGrams > 100) { val -= (totalGrams - 100); totalGrams = 100; (input as HTMLInputElement).value = Math.max(0, val).toString(); }
+        
+        // Коррекция если больше 100г
+        if (totalGrams > 100) {
+            val -= (totalGrams - 100);
+            totalGrams = 100;
+            (input as HTMLInputElement).value = Math.max(0, val).toString();
+        }
+        
         if (val > 0) {
-            totalPrice += (data.pricePer100 / 100) * val;
-            if (data.time > maxTime) maxTime = data.time;
-            data.flavors.forEach(f => flavors.add(f));
-            selectedItems.push(data);
+            totalPrice += (ingredient.pricePer100 / 100) * val;
+            if (ingredient.time > maxTime) maxTime = ingredient.time;
+            ingredient.flavors.forEach(f => flavors.add(f));
+            selectedItems.push(ingredient);
+            
             if (jar) {
-                const l = document.createElement('div');
-                l.className = 'tea-layer';
-                l.style.height = `${val}%`;
-                l.style.backgroundColor = data.color;
-                jar.appendChild(l);
+                const layer = document.createElement('div');
+                layer.className = 'tea-layer';
+                layer.style.height = `${val}%`;
+                layer.style.backgroundColor = ingredient.color;
+                jar.appendChild(layer);
             }
         }
     });
-
+    
+    // Обновление UI
     const totalPriceSpan = document.getElementById('total-price');
     const totalTimeSpan = document.getElementById('total-time');
     const gramCounterSpan = document.getElementById('gram-counter');
@@ -125,7 +187,7 @@ function calculate(e?: Event): void {
     if (nameInput && !userEditedName) {
         nameInput.value = getAutoName(selectedItems);
     }
-
+    
     if (flavorProfileDiv) {
         flavorProfileDiv.innerHTML = flavors.size > 0 
             ? Array.from(flavors).map(f => `<span class="flavor-tag">${f}</span>`).join('') 
@@ -133,16 +195,17 @@ function calculate(e?: Event): void {
     }
 }
 
-// Добавляем обработчики
-document.querySelectorAll('.qty-input').forEach(i => i.addEventListener('input', calculate));
-
-// Глобальная функция для кнопки сброса
-(window as any).resetCalculator = function(): void {
-    document.querySelectorAll('.qty-input').forEach(i => (i as HTMLInputElement).value = '0');
+// Сброс калькулятора
+function resetCalculator() {
+    document.querySelectorAll('.qty-input').forEach(input => {
+        (input as HTMLInputElement).value = '0';
+    });
     userEditedName = false;
-    if (nameInput) nameInput.value = "";
+    if (nameInput) nameInput.value = '';
     calculate();
-};
+}
 
-// Первоначальный расчет
-calculate();
+// Запуск приложения
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+});

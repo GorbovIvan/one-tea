@@ -1,0 +1,58 @@
+{
+  "ingredients": [
+    {
+      "name": "Черный чай",
+      "pricePer100": 110,
+      "color": "#483C32",
+      "time": 5,
+      "flavors": ["Терпкость", "Солод"],
+      "isBase": true,
+      "maxGrams": 100
+    },
+    {
+      "name": "Зеленый чай",
+      "pricePer100": 120,
+      "color": "#74823d",
+      "time": 3,
+      "flavors": ["Свежесть", "Травы"],
+      "isBase": true,
+      "maxGrams": 100
+    },
+    {
+      "name": "Иван чай",
+      "pricePer100": 220,
+      "color": "#556b2f",
+      "time": 7,
+      "flavors": ["Мед", "Цветы"],
+      "isBase": true,
+      "maxGrams": 100
+    },
+    {
+      "name": "Мята",
+      "pricePer100": 180,
+      "color": "#98ff98",
+      "time": 5,
+      "flavors": ["Прохлада"],
+      "isBase": false,
+      "maxGrams": 25
+    },
+    {
+      "name": "Цедра апельсина",
+      "pricePer100": 170,
+      "color": "#ffa500",
+      "time": 8,
+      "flavors": ["Цитрус", "Горчинка"],
+      "isBase": false,
+      "maxGrams": 25
+    },
+    {
+      "name": "Лаванда",
+      "pricePer100": 350,
+      "color": "#e6e6fa",
+      "time": 5,
+      "flavors": ["Аромат", "Свежесть"],
+      "isBase": false,
+      "maxGrams": 25
+    }
+  ]
+}

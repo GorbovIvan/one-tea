@@ -3,7 +3,7 @@
 <head>
     <link rel="stylesheet" href="style.css">
     <meta charset="UTF-8">
-    <title>One Tea</title>
+    <title>One Tea - Конструктор чая</title>
     <link rel="icon" href="logo.png" type="image/png">
     <style>
         .menu { position: sticky; top: 0; z-index: 1000; }
@@ -12,14 +12,13 @@
         .jar-container { flex: 0 0 250px; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
         .tea-jar { width: 150px; height: 250px; border: 4px solid #eee; border-top: 10px solid #ddd; border-radius: 10px 10px 40px 40px; position: relative; background: rgba(255,255,255,0.1); overflow: hidden; display: flex; flex-direction: column-reverse; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .tea-layer { width: 100%; transition: height 0.3s ease; }
-        .qty-input { width: 65px; padding: 8px; border-radius: 5px; border: 1px solid #73be5c; text-align: center; }
+        .qty-input { width: 65px; padding: 8px; border-radius: 5px; border: 1px solid #73be5c; text-align: center; background-color: #333; color: white; }
         .results-panel { margin-top: 20px; padding: 20px; background-color: #555; border: 3px solid #73be5c; border-radius: 10px; color: white; }
         .flavor-tag { display: inline-block; background: #73be5c; padding: 4px 10px; border-radius: 15px; margin: 3px; font-size: 13px; }
         .reset-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
-        .limit-info { font-size: 11px; color: #888; display: block; }
+        .limit-info { font-size: 11px; color: #ccc; display: block; }
         .total-val { color: #73be5c; font-weight: bold; }
         
-        /* Стили для поля названия */
         .tea-name-input {
             background: transparent;
             border: none;
@@ -34,18 +33,20 @@
         }
         .tea-name-input::placeholder { color: rgba(255, 215, 0, 0.5); }
         
-        /* Стили для таблицы - чтобы текст был видимым */
+        /* Стили для таблицы */
         .calc-container table {
             width: 100%;
             margin: 20px 0;
             border-collapse: collapse;
         }
-        .calc-container td {
+        .calc-container th, .calc-container td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
             border: 2px solid #829c3d;
             color: white;
+        }
+        .calc-container th {
+            background-color: #4a5d4a;
         }
         .calc-container tr:hover {
             background-color: #9af4772d;
@@ -69,15 +70,26 @@
         <div class="calc-container">
             <h4>Конструктор авторского чая</h4>
             <p>Соберите свой микс (до 100г)</p>
-            <table>
-                <tbody id="ingredients-body"></tbody>
+            
+            <!-- ТАБЛИЦА СОЗДАНА В HTML -->
+            <table id="ingredients-table">
+                <thead>
+                    <tr>
+                        <th>Ингредиент</th>
+                        <th>Количество (грамм)</th>
+                    </tr>
+                </thead>
+                <tbody id="ingredients-body">
+                    <!-- Данные из JSON будут загружены и отображены здесь через TypeScript -->
+                </tbody>
             </table>
+            
             <div class="results-panel">
                 <input type="text" id="tea-name" class="tea-name-input" placeholder="Назовите ваш купаж...">
                 <p>Итоговая стоимость: <span id="total-price" class="total-val">0</span> ₽</p>
                 <p>Время заварки: <span id="total-time" class="total-val">0</span> мин.</p>
                 <div id="flavor-profile">Выберите ингредиенты...</div>
-                <button class="reset-btn" onclick="resetCalculator()">Очистить всё</button>
+                <button class="reset-btn" id="reset-btn">Очистить всё</button>
             </div>
         </div>
         <div class="jar-container">
@@ -86,7 +98,6 @@
         </div>
     </div>
 
-    <!-- Подключаем скомпилированный TypeScript -->
     <script src="dist/main.js"></script>
 </body>
 </html>
