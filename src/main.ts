@@ -1,5 +1,16 @@
-// Данные прямо в коде (временно, пока не наладим JSON)
-const ingredients = [
+// Интерфейс для ингредиента
+interface Ingredient {
+    name: string;
+    pricePer100: number;
+    color: string;
+    time: number;
+    flavors: string[];
+    isBase: boolean;
+    maxGrams: number;
+}
+
+// Данные прямо в коде
+const ingredients: Ingredient[] = [
     { name: "Черный чай", pricePer100: 110, color: "#483C32", time: 5, flavors: ["Терпкость", "Солод"], isBase: true, maxGrams: 100 },
     { name: "Зеленый чай", pricePer100: 120, color: "#74823d", time: 3, flavors: ["Свежесть", "Травы"], isBase: true, maxGrams: 100 },
     { name: "Иван чай", pricePer100: 220, color: "#556b2f", time: 7, flavors: ["Мед", "Цветы"], isBase: true, maxGrams: 100 },
@@ -8,7 +19,7 @@ const ingredients = [
     { name: "Лаванда", pricePer100: 350, color: "#e6e6fa", time: 5, flavors: ["Аромат", "Свежесть"], isBase: false, maxGrams: 25 }
 ];
 
-let userEditedName = false;
+let userEditedName: boolean = false;
 let teaAudio: HTMLAudioElement;
 
 // DOM элементы
@@ -18,7 +29,7 @@ const nameInput = document.getElementById('tea-name') as HTMLInputElement;
 const resetBtn = document.getElementById('reset-btn');
 
 // Отрисовка таблицы
-function renderTable() {
+function renderTable(): void {
     if (!tbody) {
         console.error('tbody not found');
         return;
@@ -48,7 +59,7 @@ function renderTable() {
 }
 
 // Настройка обработчиков
-function setupEventListeners() {
+function setupEventListeners(): void {
     teaAudio = new Audio('pour.mp3');
     teaAudio.volume = 0.5;
     
@@ -74,10 +85,10 @@ function setupEventListeners() {
 }
 
 // Генерация названия
-const adjectives = ["Горный", "Таёжный", "Солнечный", "Утренний", "Магический", "Лесной", "Бархатный", "Изумрудный", "Королевский", "Янтарный", "Золотой", "Дикий", "Тихий", "Бодрящий", "Звездный"];
-const nouns = ["Сбор", "Секрет", "Шепот", "Купаж", "Рассвет", "Момент", "Вечер", "Заповедник", "Бриз", "Ритуал", "Сказка", "Поток", "Туман", "Остров", "Сад"];
+const adjectives: string[] = ["Горный", "Таёжный", "Солнечный", "Утренний", "Магический", "Лесной", "Бархатный", "Изумрудный", "Королевский", "Янтарный", "Золотой", "Дикий", "Тихий", "Бодрящий", "Звездный"];
+const nouns: string[] = ["Сбор", "Секрет", "Шепот", "Купаж", "Рассвет", "Момент", "Вечер", "Заповедник", "Бриз", "Ритуал", "Сказка", "Поток", "Туман", "Остров", "Сад"];
 
-function getAutoName(selected: any[]) {
+function getAutoName(selected: Ingredient[]): string {
     if (selected.length === 0) return "";
     if (selected.length === 1) return `Чистый ${selected[0].name}`;
 
@@ -97,7 +108,7 @@ function getAutoName(selected: any[]) {
     }
 
     if (base && Math.random() > 0.4) {
-        const baseThemes: any = {
+        const baseThemes: { [key: string]: string[] } = {
             "Черный чай": ["Крепость Традиций", "Английский Завтрак", "Индийское Лето"],
             "Зеленый чай": ["Дыхание Востока", "Зеленый Дракон", "Источник Энергии"],
             "Иван чай": ["Сила Предков", "Медовый Поля", "Русская Душа"]
@@ -110,11 +121,11 @@ function getAutoName(selected: any[]) {
 }
 
 // Расчет
-function calculate() {
+function calculate(): void {
     const inputs = document.querySelectorAll('.qty-input');
     let totalGrams = 0, totalPrice = 0, maxTime = 0;
-    const flavors = new Set();
-    const selectedItems = [];
+    const flavors = new Set<string>();
+    const selectedItems: Ingredient[] = [];
     
     if (jar) jar.innerHTML = '';
     
@@ -140,7 +151,7 @@ function calculate() {
         if (val > 0) {
             totalPrice += (ingredient.pricePer100 / 100) * val;
             if (ingredient.time > maxTime) maxTime = ingredient.time;
-            ingredient.flavors.forEach((f: string) => flavors.add(f));
+            ingredient.flavors.forEach(f => flavors.add(f));
             selectedItems.push(ingredient);
             
             if (jar) {
@@ -174,7 +185,7 @@ function calculate() {
 }
 
 // Сброс
-function resetCalculator() {
+function resetCalculator(): void {
     document.querySelectorAll('.qty-input').forEach(input => {
         (input as HTMLInputElement).value = '0';
     });
