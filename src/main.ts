@@ -1,15 +1,13 @@
-// Типы данных
-interface Ingredient {
-    name: string;
-    pricePer100: number;
-    color: string;
-    time: number;
-    flavors: string[];
-    isBase: boolean;
-    maxGrams: number;
-}
+// Данные прямо в коде (временно, пока не наладим JSON)
+const ingredients = [
+    { name: "Черный чай", pricePer100: 110, color: "#483C32", time: 5, flavors: ["Терпкость", "Солод"], isBase: true, maxGrams: 100 },
+    { name: "Зеленый чай", pricePer100: 120, color: "#74823d", time: 3, flavors: ["Свежесть", "Травы"], isBase: true, maxGrams: 100 },
+    { name: "Иван чай", pricePer100: 220, color: "#556b2f", time: 7, flavors: ["Мед", "Цветы"], isBase: true, maxGrams: 100 },
+    { name: "Мята", pricePer100: 180, color: "#98ff98", time: 5, flavors: ["Прохлада"], isBase: false, maxGrams: 25 },
+    { name: "Цедра апельсина", pricePer100: 170, color: "#ffa500", time: 8, flavors: ["Цитрус", "Горчинка"], isBase: false, maxGrams: 25 },
+    { name: "Лаванда", pricePer100: 350, color: "#e6e6fa", time: 5, flavors: ["Аромат", "Свежесть"], isBase: false, maxGrams: 25 }
+];
 
-let ingredients: Ingredient[] = [];
 let userEditedName = false;
 let teaAudio: HTMLAudioElement;
 
@@ -19,23 +17,12 @@ const jar = document.getElementById('visual-jar');
 const nameInput = document.getElementById('tea-name') as HTMLInputElement;
 const resetBtn = document.getElementById('reset-btn');
 
-// Загрузка данных из JSON
-async function loadData() {
-    try {
-        const response = await fetch('data/ingredients.json');
-        const data = await response.json();
-        ingredients = data.ingredients;
-        renderTable();
-        setupEventListeners();
-        calculate();
-    } catch (error) {
-        console.error('Ошибка загрузки данных:', error);
-    }
-}
-
-// Отрисовка таблицы из данных JSON
+// Отрисовка таблицы
 function renderTable() {
-    if (!tbody) return;
+    if (!tbody) {
+        console.error('tbody not found');
+        return;
+    }
     tbody.innerHTML = '';
     
     ingredients.forEach((item, index) => {
@@ -56,39 +43,33 @@ function renderTable() {
         `;
         tbody.appendChild(tr);
     });
+    
+    console.log('Таблица отрисована, ингредиентов:', ingredients.length);
 }
 
-// Настройка обработчиков событий
+// Настройка обработчиков
 function setupEventListeners() {
-    // Звук
     teaAudio = new Audio('pour.mp3');
     teaAudio.volume = 0.5;
     
-    // Поля ввода
     document.querySelectorAll('.qty-input').forEach(input => {
         input.addEventListener('input', () => {
-            playPourSound();
+            if (teaAudio) {
+                teaAudio.currentTime = 0;
+                teaAudio.play().catch(() => {});
+            }
             calculate();
         });
     });
     
-    // Поле названия
     if (nameInput) {
         nameInput.addEventListener('input', () => {
             userEditedName = true;
         });
     }
     
-    // Кнопка сброса
     if (resetBtn) {
         resetBtn.addEventListener('click', resetCalculator);
-    }
-}
-
-function playPourSound() {
-    if (teaAudio) {
-        teaAudio.currentTime = 0;
-        teaAudio.play().catch(() => {});
     }
 }
 
@@ -96,7 +77,7 @@ function playPourSound() {
 const adjectives = ["Горный", "Таёжный", "Солнечный", "Утренний", "Магический", "Лесной", "Бархатный", "Изумрудный", "Королевский", "Янтарный", "Золотой", "Дикий", "Тихий", "Бодрящий", "Звездный"];
 const nouns = ["Сбор", "Секрет", "Шепот", "Купаж", "Рассвет", "Момент", "Вечер", "Заповедник", "Бриз", "Ритуал", "Сказка", "Поток", "Туман", "Остров", "Сад"];
 
-function getAutoName(selected: Ingredient[]): string {
+function getAutoName(selected: any[]) {
     if (selected.length === 0) return "";
     if (selected.length === 1) return `Чистый ${selected[0].name}`;
 
@@ -116,7 +97,7 @@ function getAutoName(selected: Ingredient[]): string {
     }
 
     if (base && Math.random() > 0.4) {
-        const baseThemes: Record<string, string[]> = {
+        const baseThemes: any = {
             "Черный чай": ["Крепость Традиций", "Английский Завтрак", "Индийское Лето"],
             "Зеленый чай": ["Дыхание Востока", "Зеленый Дракон", "Источник Энергии"],
             "Иван чай": ["Сила Предков", "Медовый Поля", "Русская Душа"]
@@ -128,12 +109,12 @@ function getAutoName(selected: Ingredient[]): string {
     return adjectives[Math.floor(Math.random() * adjectives.length)] + " " + nouns[Math.floor(Math.random() * nouns.length)];
 }
 
-// Основная функция расчета
+// Расчет
 function calculate() {
     const inputs = document.querySelectorAll('.qty-input');
     let totalGrams = 0, totalPrice = 0, maxTime = 0;
-    const flavors = new Set<string>();
-    const selectedItems: Ingredient[] = [];
+    const flavors = new Set();
+    const selectedItems = [];
     
     if (jar) jar.innerHTML = '';
     
@@ -143,7 +124,6 @@ function calculate() {
         const ingredient = ingredients[idx];
         if (!ingredient) return;
         
-        // Ограничения
         if (!ingredient.isBase && val > 25) {
             val = 25;
             (input as HTMLInputElement).value = '25';
@@ -151,7 +131,6 @@ function calculate() {
         
         totalGrams += val;
         
-        // Коррекция если больше 100г
         if (totalGrams > 100) {
             val -= (totalGrams - 100);
             totalGrams = 100;
@@ -161,7 +140,7 @@ function calculate() {
         if (val > 0) {
             totalPrice += (ingredient.pricePer100 / 100) * val;
             if (ingredient.time > maxTime) maxTime = ingredient.time;
-            ingredient.flavors.forEach(f => flavors.add(f));
+            ingredient.flavors.forEach((f: string) => flavors.add(f));
             selectedItems.push(ingredient);
             
             if (jar) {
@@ -174,7 +153,6 @@ function calculate() {
         }
     });
     
-    // Обновление UI
     const totalPriceSpan = document.getElementById('total-price');
     const totalTimeSpan = document.getElementById('total-time');
     const gramCounterSpan = document.getElementById('gram-counter');
@@ -195,7 +173,7 @@ function calculate() {
     }
 }
 
-// Сброс калькулятора
+// Сброс
 function resetCalculator() {
     document.querySelectorAll('.qty-input').forEach(input => {
         (input as HTMLInputElement).value = '0';
@@ -205,7 +183,11 @@ function resetCalculator() {
     calculate();
 }
 
-// Запуск приложения
+// Запуск
 document.addEventListener('DOMContentLoaded', () => {
-    loadData();
+    console.log('DOM загружен, начинаем...');
+    renderTable();
+    setupEventListeners();
+    calculate();
+    console.log('Готово!');
 });
