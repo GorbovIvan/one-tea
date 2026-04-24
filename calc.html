@@ -1,105 +1,294 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <meta charset="UTF-8">
     <title>One Tea - Конструктор чая</title>
     <link rel="icon" href="logo.png" type="image/png">
     <style>
-        .menu { position: sticky; top: 0; z-index: 1000; }
-        .calc-wrapper { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; max-width: 1100px; margin: 20px auto; padding: 20px; }
-        .calc-container { flex: 1; min-width: 350px; }
-        .jar-container { flex: 0 0 250px; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
-        .tea-jar { width: 150px; height: 250px; border: 4px solid #eee; border-top: 10px solid #ddd; border-radius: 10px 10px 40px 40px; position: relative; background: rgba(255,255,255,0.1); overflow: hidden; display: flex; flex-direction: column-reverse; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .tea-layer { width: 100%; transition: height 0.3s ease; }
-        .qty-input { width: 65px; padding: 8px; border-radius: 5px; border: 1px solid #73be5c; text-align: center; background-color: #333; color: white; }
-        .results-panel { margin-top: 20px; padding: 20px; background-color: #555; border: 3px solid #73be5c; border-radius: 10px; color: white; }
-        .flavor-tag { display: inline-block; background: #73be5c; padding: 4px 10px; border-radius: 15px; margin: 3px; font-size: 13px; }
-        .reset-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 15px; }
-        .limit-info { font-size: 11px; color: #ccc; display: block; }
-        .total-val { color: #73be5c; font-weight: bold; }
+        /* БАЗОВЫЕ СТИЛИ КОНСТРУКТОРА */
+        .calc-wrapper { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 30px; 
+            justify-content: center; 
+            max-width: 1100px; 
+            margin: 40px auto; 
+            padding: 0 20px; 
+        }
+
+        .calc-container { flex: 1; min-width: 320px; }
         
-        .tea-name-input {
-            background: transparent;
-            border: none;
-            border-bottom: 1px dashed #ffd700;
-            color: #ffd700;
-            font-style: italic;
-            font-size: 1.2em;
-            width: 100%;
-            margin-bottom: 15px;
+        .jar-container { 
+            flex: 0 0 250px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        /* БАНКА */
+        .tea-jar { 
+            width: 160px; 
+            height: 260px; 
+            border: 4px solid #eee; 
+            border-top: 2px solid #ddd; 
+            border-radius: 10px 10px 45px 45px; 
+            position: relative; 
+            background: rgba(255,255,255,0.05); 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column-reverse; 
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.4); 
+        }
+
+        .tea-layer { 
+            width: 100%; 
+            transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        
+        /* ТАБЛИЦА И ФОРМЫ */
+        .calc-container table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .calc-container th, .calc-container td { 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 1px solid rgba(130, 156, 61, 0.3); 
+            color: white; 
+        }
+
+        .qty-input { 
+            width: 70px; 
+            padding: 8px; 
+            border-radius: 5px; 
+            border: 1px solid #829c3d; 
+            background: #222; 
+            color: #fff; 
+            text-align: center;
+        }
+
+        /* ПАНЕЛЬ РЕЗУЛЬТАТОВ */
+        .results-panel { 
+            background: rgba(50, 50, 50, 0.95); 
+            border: 2px solid #829c3d; 
+            border-radius: 15px; 
+            padding: 25px; 
+            color: white; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+        }
+
+        .tea-name-input { 
+            background: transparent; 
+            border: none; 
+            border-bottom: 2px dashed #ffd700; 
+            color: #ffd700; 
+            font-size: 1.5em; 
+            width: 100%; 
+            margin-bottom: 20px; 
+            outline: none; 
             font-family: inherit;
-            outline: none;
         }
-        .tea-name-input::placeholder { color: rgba(255, 215, 0, 0.5); }
+
+        .total-val { color: #829c3d; font-weight: bold; font-size: 1.2em; }
         
-        /* Стили для таблицы */
-        .calc-container table {
-            width: 100%;
-            margin: 20px 0;
-            border-collapse: collapse;
+        .order-btn { 
+            background: #829c3d; 
+            color: white; 
+            border: none; 
+            padding: 18px; 
+            border-radius: 8px; 
+            width: 100%; 
+            font-weight: bold; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            margin-top: 15px;
+            transition: 0.3s;
         }
-        .calc-container th, .calc-container td {
-            padding: 12px 15px;
-            text-align: left;
-            border: 2px solid #829c3d;
-            color: white;
+
+        .order-btn:hover { background: #6a7c35; transform: translateY(-2px); }
+
+        .flavor-tag { 
+            display: inline-block; 
+            background: rgba(130, 156, 61, 0.2); 
+            border: 1px solid #829c3d;
+            padding: 4px 12px; 
+            border-radius: 15px; 
+            margin: 4px; 
+            font-size: 13px; 
         }
-        .calc-container th {
-            background-color: #4a5d4a;
-        }
-        .calc-container tr:hover {
-            background-color: #9af4772d;
+
+        /* МОБИЛКА */
+        @media (max-width: 768px) {
+            .calc-wrapper { flex-direction: column-reverse; padding: 10px; }
+            .jar-container { position: relative; top: 0; margin-bottom: 30px; }
+            .calc-container { width: 100%; }
         }
     </style>
-    <script src="mobile-fix.js"></script>
 </head>
-<body>
+<body id="indexpage">
     <nav class="menu">
         <a href="index.html"><img src="logo.png" class="logo-img" alt="Logo"></a>
         <h1 class="menu-title">One Tea</h1>
         <div class="nav-links">
             <a href="index.html" class="menu-btn">Главная</a>
-            <a href="catalog.html" class="menu-btn">Каталог авторского чая</a>
+            <a href="catalog.html" class="menu-btn">Каталог</a>
             <a href="about.html" class="menu-btn">О нас</a>
-            <a href="contact.html" class="menu-btn">Контакты</a>
-            <a href="calc.html" class="menu-btn">Калькулятор чая</a>
+            <a href="calc.html" class="menu-btn">Конструктор</a>
         </div>
     </nav>
 
     <div class="calc-wrapper">
         <div class="calc-container">
-            <h4>Конструктор авторского чая</h4>
-            <p>Соберите свой микс (до 100г)</p>
-            
-            <!-- ТАБЛИЦА СОЗДАНА В HTML -->
-            <table id="ingredients-table">
-                <thead>
-                    <tr>
-                        <th>Ингредиент</th>
-                        <th>Количество (грамм)</th>
-                    </tr>
-                </thead>
-                <tbody id="ingredients-body">
-                    <!-- Данные из JSON будут загружены и отображены здесь через TypeScript -->
-                </tbody>
-            </table>
-            
-            <div class="results-panel">
-                <input type="text" id="tea-name" class="tea-name-input" placeholder="Назовите ваш купаж...">
-                <p>Итоговая стоимость: <span id="total-price" class="total-val">0</span> ₽</p>
-                <p>Время заварки: <span id="total-time" class="total-val">0</span> мин.</p>
-                <div id="flavor-profile">Выберите ингредиенты...</div>
-                <button class="reset-btn" id="reset-btn">Очистить всё</button>
+            <div class="content-block" style="margin: 0; width: auto;">
+                <h4 style="text-align: left;">Создание персонального купажа</h4>
+                <p>Выберите желаемое количество ингредиентов. Общий вес не должен превышать 100г. Добавки (ништяки) ограничены 25г.</p>
+                
+                <table>
+                    <thead>
+                        <tr><th>Компонент</th><th>Вес (г)</th></tr>
+                    </thead>
+                    <tbody id="ingredients-body"></tbody>
+                </table>
+                
+                <div class="results-panel">
+                    <input type="text" id="tea-name" class="tea-name-input" data-auto="true" placeholder="Назовите ваш чай...">
+                    
+                    <p>Стоимость: <span id="total-price" class="total-val">0</span> ₽</p>
+                    <p>Время заваривания: <span id="total-time" class="total-val">0</span> мин.</p>
+                    <p>Вкусовой профиль: <i id="flavor-notes" style="color: #cbdccb;">сбалансированный</i></p>
+                    
+                    <div id="flavor-profile"></div>
+
+                    <button class="order-btn" id="order-btn">ОФОРМИТЬ ЗАКАЗ</button>
+                    <button id="reset-btn" style="background:none; border:none; color:#999; cursor:pointer; width:100%; margin-top:15px; text-decoration:underline;">Сбросить всё</button>
+                </div>
             </div>
         </div>
+
         <div class="jar-container">
             <div class="tea-jar" id="visual-jar"></div>
-            <p><b id="gram-counter">0</b> / 100 гр</p>
+            <p style="margin-top: 15px; font-weight: bold;"><span id="gram-counter">0</span> / 100 г</p>
         </div>
     </div>
 
-    <script src="/dist/main.js"></script>
+    <script>
+        const ingredients = [
+            { id: 'black', name: 'Чёрный Ассам', price: 3, time: 5, color: '#3e2723', type: 'base', note: 'терпкий', adj: 'Ассам' },
+            { id: 'green', name: 'Зелёный Сенча', price: 3.5, time: 3, color: '#556b2f', type: 'base', note: 'травянистый', adj: 'Сенча' },
+            { id: 'lavender', name: 'Лаванда', price: 6, time: 0, color: '#9575cd', type: 'extra', note: 'цветочный', adj: 'Лавандовый' },
+            { id: 'ginger', name: 'Имбирь', price: 5, time: 0, color: '#d4af37', type: 'extra', note: 'острый', adj: 'Имбирный' },
+            { id: 'mint', name: 'Мята', price: 4, time: 0, color: '#4db6ac', type: 'extra', note: 'освежающий', adj: 'Мятный' }
+        ];
+
+        let selected = {};
+        const pourSound = new Audio('https://soundjay.com');
+
+        function init() {
+            const tableBody = document.getElementById('ingredients-body');
+            tableBody.innerHTML = ingredients.map(ing => `
+                <tr>
+                    <td>${ing.name} <br><small style="color:#aaa">${ing.type === 'extra' ? 'Добавка' : 'Основа'}</small></td>
+                    <td><input type="number" class="qty-input" data-id="${ing.id}" value="0" min="0" max="100"></td>
+                </tr>
+            `).join('');
+
+            document.querySelectorAll('.qty-input').forEach(input => {
+                input.addEventListener('input', (e) => handleInput(e.target));
+            });
+        }
+
+        function handleInput(el) {
+            const id = el.dataset.id;
+            const val = parseInt(el.value) || 0;
+            const ing = ingredients.find(i => i.id === id);
+
+            const totalExtra = ingredients.filter(i => i.type === 'extra').reduce((s, i) => s + (parseInt(document.querySelector(`[data-id="${i.id}"]`).value) || 0), 0);
+            const totalAll = ingredients.reduce((s, i) => s + (parseInt(document.querySelector(`[data-id="${i.id}"]`).value) || 0), 0);
+
+            if (totalExtra > 25 || totalAll > 100) {
+                el.value = selected[id] || 0;
+                alert("Информационное сообщение: Превышены лимиты веса (100г на банку или 25г на добавки).");
+                return;
+            }
+
+            if (val > (selected[id] || 0)) { pourSound.currentTime = 0; pourSound.play().catch(() => {}); }
+            selected[id] = val;
+            updateVisuals();
+        }
+
+        function updateVisuals() {
+            const jar = document.getElementById('visual-jar');
+            jar.innerHTML = '';
+            let totalP = 0, totalW = 0, maxT = 0;
+            let tags = [], notes = [], adjs = [];
+
+            ingredients.forEach(ing => {
+                const weight = selected[ing.id] || 0;
+                if (weight > 0) {
+                    totalP += weight * ing.price;
+                    totalW += weight;
+                    if (ing.time > maxT) maxT = ing.time;
+                    tags.push(`<span class="flavor-tag">${ing.name}</span>`);
+                    notes.push(ing.note);
+                    adjs.push(ing.adj);
+
+                    const layer = document.createElement('div');
+                    layer.className = 'tea-layer';
+                    layer.style.height = `${weight * 2.4}px`;
+                    layer.style.backgroundColor = ing.color;
+                    jar.appendChild(layer);
+                }
+            });
+
+            document.getElementById('total-price').innerText = totalP;
+            document.getElementById('total-time').innerText = maxT;
+            document.getElementById('gram-counter').innerText = totalW;
+            document.getElementById('flavor-profile').innerHTML = tags.join('');
+            document.getElementById('flavor-notes').innerText = notes.length ? [...new Set(notes)].join(', ') : 'сбалансированный';
+
+            const nameInput = document.getElementById('tea-name');
+            if (nameInput.dataset.auto === "true") {
+                if (adjs.length >= 2) nameInput.value = adjs.slice(0, 2).join(' ');
+                else if (adjs.length === 1) nameInput.value = "Авторский " + adjs;
+                else nameInput.value = "";
+            }
+        }
+
+        document.getElementById('order-btn').onclick = () => {
+            const name = document.getElementById('tea-name').value || "Новый купаж";
+            const weight = document.getElementById('gram-counter').innerText;
+            if (parseInt(weight) === 0) { alert("Выберите ингредиенты."); return; }
+
+            let recipe = "";
+            ingredients.forEach(i => { if (selected[i.id] > 0) recipe += `${i.name}(${selected[i.id]}г) `; });
+            
+            const msg = `Заказ: ${name}. Состав: ${recipe}. Итого: ${document.getElementById('total-price').innerText}р.`;
+            window.location.href = `mailto:order@onetea.ru?subject=Чайный заказ&body=${encodeURIComponent(msg)}`;
+        };
+
+        document.getElementById('tea-name').addEventListener('input', function() { 
+            this.dataset.auto = this.value === "" ? "true" : "false"; 
+        });
+
+        document.getElementById('reset-btn').onclick = () => {
+            document.querySelectorAll('.qty-input').forEach(i => i.value = 0);
+            selected = {};
+            document.getElementById('tea-name').dataset.auto = "true";
+            updateVisuals();
+        };
+
+        init();
+    </script>
 </body>
 </html>
+

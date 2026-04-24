@@ -1,55 +1,57 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
+<head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <meta charset="UTF-8">
-    <title>One Tea</title>
+    <title>Каталог — One Tea</title>
     <link rel="icon" href="logo.png" type="image/png">
-    <script src="mobile-fix.js"></script>
-  </head>
-  <body>
+</head>
+<body id="catalog-page"> <!-- Добавил ID для специфичных стилей -->
     <nav class="menu">
-      <a href="index.html">
-          <img src="logo.png" class="logo-img" alt="Logo">
-      </a>
-    
-      <h1 class="menu-title">One Tea</h1>
+        <a href="index.html">
+            <img src="logo.png" class="logo-img" alt="Logo">
+        </a>
+        <h1 class="menu-title">One Tea</h1>
+        <div class="nav-links">
+            <a href="index.html" class="menu-btn">Главная</a>
+            <a href="catalog.html" class="menu-btn">Каталог авторского чая</a>
+            <a href="about.html" class="menu-btn">О нас</a>
+            <a href="contact.html" class="menu-btn">Контакты</a>
+            <a href="calc.html" class="menu-btn">Калькулятор чая</a>
+        </div>
+    </nav>
 
-      <div class="nav-links">
-          <a href="index.html" class="menu-btn">Главная</a>
-          <a href="catalog.html" class="menu-btn">Каталог авторского чая</a>
-          <a href="about.html" class="menu-btn">О нас</a>
-          <a href="contact.html" class="menu-btn">Контакты</a>
-          <a href="calc.html" class="menu-btn">Калькулятор чая</a>
-      </div>
-</nav>
-
-    
-<h4>Каталог авторского чая</h4>
-<table>
-    <tr>
-        <td>Название</td>
-        <td>Оттенок</td>
-        <td>Время заварки</td>
-        <td>Описание</td>
-        <td>Состав</td>
-        <td>Цена</td>
-        <td>Фотография</td>
-    </tr>
-    <tr>
-        <td>Лавандовый имбирь</td>
-        <td>Травяной, пряный</td>
-        <td>7 - 10 мин</td>
-        <td>Успокаивающий, травяной чай с ноткой имбирного тепла</td>
-        <td>Чёрный чай с бергамотом, имбирь, лаванда</td>
-        <td>150 рублей</td>
-        <td><img src="images/лавандовый_имбирь.jpeg" alt="Картинка не загрузилась!"></td>
-    </tr>
-    <tr></tr>
-    <tr></tr>
-    <tr></tr>
-
-</table>
-  </body>
+    <main class="content-block">
+        <h4>Каталог авторского чая</h4>
+        <div class="table-wrapper">
+            <table class="tea-table">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Оттенок</th>
+                        <th>Время</th>
+                        <th>Описание</th>
+                        <th>Состав</th>
+                        <th>Цена</th>
+                        <th>Фото</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-label="Название">Лавандовый имбирь</td>
+                        <td data-label="Оттенок">Травяной, пряный</td>
+                        <td data-label="Время">7-10 мин</td>
+                        <td data-label="Описание">Успокаивающий, травяной чай с ноткой имбирного тепла</td>
+                        <td data-label="Состав">Чёрный с бергамотом, имбирь, лаванда</td>
+                        <td data-label="Цена">150 руб</td>
+                        <td data-label="Фото"><img src="images/лавандовый_имбирь.jpeg" class="catalog-img" alt="Чай"></td>
+                    </tr>
+                    <!-- Добавляй новые <tr> здесь -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
 </html>
+

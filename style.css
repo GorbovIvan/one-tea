@@ -1,3 +1,4 @@
+/* 1. ШРИФТЫ */
 @font-face {
     font-family: "handwrite";
     src: url("fonts/lora/lora.ttf") format("truetype");
@@ -5,6 +6,7 @@
     font-style: normal;
 }
 
+/* 2. БАЗОВЫЕ СТИЛИ */
 body {
     margin: 0;
     padding: 0;
@@ -16,9 +18,17 @@ body {
     background-size: cover;
     color: white;
 }
+
+/* Фикс параллакса для страницы каталога (чтобы таблица стояла мертво) */
+#catalog-page {
+    background-attachment: scroll !important;
+}
+
 #indexpage {
     background-image: url('images/main-bg.png');
 }
+
+/* 3. МЕНЮ (ШАПКА) */
 .menu {
     position: sticky;
     top: 0;
@@ -27,27 +37,7 @@ body {
     align-items: center;
     padding: 15px 40px;
     border-bottom: 1px solid #555;
-}
-
-.content-block {
-    background-color: rgba(102, 102, 102, 0.9);
-    max-width: 900px;
-    margin: 60px auto;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    line-height: 1.6;
-}
-
-.image-spacer {
-    text-align: center;
-    margin: 40px 0;
-}
-
-.promo-img {
-    max-width: 80%;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 1000;
 }
 
 .logo-img {
@@ -70,6 +60,7 @@ body {
     flex: 1;
     justify-content: space-around;
     align-items: center;
+    gap: 10px;
 }
 
 .menu-btn {
@@ -89,6 +80,24 @@ body {
     transform: scale(1.05);
 }
 
+/* 4. КОНТЕНТНЫЕ БЛОКИ (ЛЕЙБЛЫ) */
+.content-block {
+    background-color: rgba(102, 102, 102, 0.9);
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    line-height: 1.6;
+    position: relative;
+}
+
+/* Расширенный блок для каталога */
+#catalog-page .content-block {
+    max-width: 1100px;
+    background-color: #444444; /* Плотный фон для таблицы */
+}
+
 h4 {
     font-family: "handwrite";
     font-size: 28px;
@@ -97,26 +106,121 @@ h4 {
     color: #cbdccb;
 }
 
+/* 5. ТАБЛИЦА И КАТАЛОГ */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
 table {
     width: 100%;
-    margin: 20px 0;
     border-collapse: collapse;
-
+    background-color: rgba(0, 0, 0, 0.2);
 }
 
 th, td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
     border: 2px solid #829c3d;
 }
 
 th {
-    background-color: hwb(0 96% 4%);
+    background-color: rgba(255, 255, 255, 0.1);
     font-weight: bold;
+    color: #cbdccb;
 }
 
-
-tr:hover {
-    background-color: #9af4772d;
+.catalog-img {
+    width: 100px;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 0 auto;
 }
+
+/* 6. АДАПТИВ ПОД МОБИЛКИ (ГЛАВНЫЙ МАГИЧЕСКИЙ БЛОК) */
+@media (max-width: 900px) {
+    body {
+        background-attachment: scroll !important;
+    }
+
+    .menu {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .menu-title {
+        margin: 10px 0 20px 0;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .menu-btn {
+        flex: 1 1 45%;
+        font-size: 15px;
+    }
+
+    .content-block {
+        margin: 20px 10px;
+        padding: 20px;
+    }
+
+    /* Превращаем таблицу в карточки */
+    .tea-table thead {
+        display: none;
+    }
+
+    .tea-table, .tea-table tbody, .tea-table tr, .tea-table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .tea-table tr {
+        margin-bottom: 25px;
+        border: 2px solid #829c3d;
+        border-radius: 12px;
+        background: #555;
+        padding: 10px;
+    }
+
+    .tea-table td {
+        text-align: right;
+        padding-left: 45%;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        min-height: 40px;
+    }
+
+    .tea-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        font-weight: bold;
+        color: #cbdccb;
+        text-align: left;
+    }
+
+    .tea-table td:last-child {
+        border-bottom: 0;
+        text-align: center;
+        padding-left: 0;
+    }
+
+    .catalog-img {
+        width: 100%;
+        max-width: 200px;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-btn {
+        flex: 1 1 100%;
+    }
+}
+
